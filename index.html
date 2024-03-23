@@ -12,15 +12,14 @@
     <body>
         <h1>Sudoku</h1>
         <hr>
-        <h2 id="errors">0</h2>
+        <h2 id="time">00:00</h2>
       
         <!-- 9x9 board -->
         <div id="board"></div>
         <br>
-        <div id="digits">
-             
-        </div>
-        
+        <button onclick="SolveBackTrack()">Solve Backtrack</button>
+        <button onclick="Solve()">Solve Heuristic</button>
+        <button style="--c:#E95A49" onclick="Reset()">Reset</button>
         <!-- <div id="modal_choose_digit" class="modal">
             <div class="modal-content" id="digits">
              
