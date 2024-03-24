@@ -94,6 +94,22 @@ function setTime() {
       (Math.floor(seconds / 10) === 0 ? "0".concat(seconds) : seconds);
   }, 1000);
 }
+function checkBoard(board) {
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (board[i][j] !== 0) {
+        let num = board[i][j];
+        board[i][j] = 0;
+        if (!checkGrid(board, i, j, num)) {
+          board[i][j] = num;
+          return false;
+        }
+        board[i][j] = num;
+      }
+    }
+  }
+  return true;
+}
 function checkGrid(grid, row, col, num) {
   for (let i = 0; i < 9; i++) {
     if (grid[i][col] === num || grid[row][i] === num) {
@@ -111,14 +127,22 @@ function checkGrid(grid, row, col, num) {
   }
   return true;
 }
-function BackTrack(grid) {
+function updateCell(row, col, num) {
+  let tile_input = document.getElementsByClassName(
+    row.toString() + "-" + col.toString()
+  );
+  tile_input[0].value = num;
+}
+async function BackTrack(grid) {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       if (grid[row][col] === 0) {
         for (let num = 1; num <= 9; num++) {
           if (checkGrid(grid, row, col, num)) {
             grid[row][col] = num;
-            if (BackTrack(grid)) {
+            updateCell(row, col, num);
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            if (await BackTrack(grid)) {
               return true;
             } else {
               grid[row][col] = 0;
@@ -131,10 +155,14 @@ function BackTrack(grid) {
   }
   return true;
 }
-function SolveBackTrack() {
+async function SolveBackTrack() {
   setTime();
-  BackTrack(board);
-  setGame();
+  if (checkBoard(board) && await BackTrack(board)) {
+    setGame();
+    alert("Solution found");
+  } else {
+    alert("No solution");
+  }
   clearInterval(interval);
 }
 function Reset() {
