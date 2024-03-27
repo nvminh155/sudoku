@@ -157,7 +157,7 @@ async function BackTrack(grid) {
 }
 async function SolveBackTrack() {
   setTime();
-  if (checkBoard(board) && await BackTrack(board)) {
+  if (checkBoard(board) && (await BackTrack(board))) {
     setGame();
     alert("Solution found");
   } else {
@@ -180,4 +180,86 @@ function Reset() {
   setGame();
   clearInterval(interval);
   document.getElementById("time").innerText = "00:00";
+}
+
+async function SolveBackTrackHeuristic() {
+  setTime();
+  if (checkBoard() && (await solve(board))) {
+    setGame();
+    alert("Solution found");
+  } else {
+    alert("No solution");
+  }
+  clearInterval(interval);
+}
+
+async function solve(board) {
+  let emptySpot = findEmptySpot(board);
+  if (!emptySpot) {
+    return true; // Nếu không còn chỗ trống nào thì bảng đã được giải
+  }
+
+  const [row, col] = emptySpot;
+
+  for (let num = 1; num <= 9; num++) {
+    if (isValid(board, row, col, num)) {
+      board[row][col] = num;
+      updateCell(row, col, num);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      if (await solve(board)) {
+        return true;
+      }
+      board[row][col] = 0; // Nếu không thể giải, đặt lại ô này thành 0 và thử giá trị khác
+    }
+  }
+  return false; // Trả về false nếu không có giải pháp nào hoạt động
+}
+
+function findEmptySpot(board) {
+  let minOptions = 10; // Khởi tạo số lựa chọn tối thiểu là 10 (lớn hơn 9)
+  let minSpot = null;
+
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (board[i][j] === 0) {
+        let options = findOptions(board, i, j);
+        if (options.length < minOptions) {
+          minOptions = options.length;
+          minSpot = [i, j];
+        }
+      }
+    }
+  }
+  return minSpot;
+}
+function findOptions(board, row, col) {
+  let options = [];
+  for (let num = 1; num <= 9; num++) {
+    if (isValid(board, row, col, num)) {
+      options.push(num);
+    }
+  }
+  return options;
+}
+
+function isValid(board, row, col, num) {
+  // Kiểm tra hàng và cột
+  for (let i = 0; i < 9; i++) {
+    if (board[row][i] === num || board[i][col] === num) {
+      return false;
+    }
+  }
+
+  // Kiểm tra ô 3x3
+  const startRow = Math.floor(row / 3) * 3;
+  const startCol = Math.floor(col / 3) * 3;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[startRow + i][startCol + j] === num) {
+        return false;
+      }
+    }
+  }
+
+  return true; // Trả về true nếu giá trị num hợp lệ ở hàng, cột và ô 3x3
 }
