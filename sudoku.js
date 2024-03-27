@@ -128,10 +128,15 @@ function checkGrid(grid, row, col, num) {
   return true;
 }
 function updateCell(row, col, num) {
+  let listInput = document.getElementsByTagName("input");
+  for (let i = 0; i < listInput.length; i++) {
+    listInput[i].style.backgroundColor = "white";
+  }
   let tile_input = document.getElementsByClassName(
     row.toString() + "-" + col.toString()
   );
   tile_input[0].value = num;
+  tile_input[0].style.backgroundColor = "lightgreen";
 }
 async function BackTrack(grid) {
   for (let row = 0; row < 9; row++) {
