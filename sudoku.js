@@ -184,7 +184,7 @@ function Reset() {
 
 async function SolveBackTrackHeuristic() {
   setTime();
-  if (checkBoard() && (await solve(board))) {
+  if (checkBoard(board) && (await solve(board))) {
     setGame();
     alert("Solution found");
   } else {
