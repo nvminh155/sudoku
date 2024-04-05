@@ -1,7 +1,9 @@
+/* CSS */
 body {
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
 }
+
 input {
     outline: none;
     border-color: none;

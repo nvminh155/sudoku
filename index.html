@@ -1,32 +1,29 @@
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width initial-scale=1.0 user-scalable=no">
-        <title>Sudoku</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width initial-scale=1.0 user-scalable=no"
+    />
+    <!-- Tên trò chơi -->
+    <title>Sudoku</title>
+    <!-- CSS và JS -->
+    <link rel="stylesheet" href="sudoku.css" />
+    <script src="sudoku.js"></script>
+  </head>
 
-        <link rel="stylesheet" href="sudoku.css">
-        <link rel="stylesheet" href="modal_choose_digit.css">
-        <script src="sudoku.js"></script>
-    </head>
-
-    <body>
-        <h1>Sudoku</h1>
-        <hr>
-        <h2 id="time">00:00</h2>
-      
-        <!-- 9x9 board -->
-        <div id="board"></div>
-        <br>
-        <button onclick="SolveBackTrack()">Solve Backtrack</button>
-        <button onclick="SolveBackTrackHeuristic()">Solve Heuristic</button>
-        <button style="--c:#E95A49" onclick="Reset()">Reset</button>
-        <!-- <div id="modal_choose_digit" class="modal">
-            <div class="modal-content" id="digits">
-             
-            </div>
-        </div> -->
-          
-    </body>
-
-
+  <body>
+    <!-- Tiêu đề -->
+    <h1>Sudoku</h1>
+    <hr />
+    <!-- Thời gian -->
+    <h2 id="time">00:00</h2>
+    <!-- Bảng sudoku -->
+    <div id="board"></div>
+    <br />
+    <!-- Nút -->
+    <button onclick="SolveBackTrack()">Solve Backtrack</button>
+    <button onclick="SolveBackTrackHeuristic()">Solve Heuristic</button>
+    <button style="--c: #e95a49" onclick="Reset()">Reset</button>
+  </body>
 </html>
