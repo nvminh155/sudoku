@@ -204,7 +204,7 @@ async function SolveBackTrackHeuristic() {
   // Bắt đầu đếm thời gian
   setTime();
   // Kiểm tra bảng Sudoku và giải bằng Backtrack Heuristic
-  if (checkBoard(board) && (await solve(board))) {
+  if (checkBoard(board) && (await solve(board, true))) {
     // Nếu tìm thấy giải pháp, cập nhật lại giao diện bảng Sudoku
     setGame();
     alert("Solution found");
@@ -216,7 +216,7 @@ async function SolveBackTrackHeuristic() {
   clearInterval(interval);
 }
 // Hàm triển khai giải thuật Backtrack Heuristic
-async function solve(board) {
+async function solve(board, checkRandom) {
   // Tìm ô trống
   let emptySpot = findEmptySpot(board);
   // Nếu không còn ô trống thì trả về true
@@ -232,9 +232,11 @@ async function solve(board) {
       board[row][col] = num;
       updateCell(row, col, num);
       // Đợi 50ms vì ngôn ngữ chạy khá nhanh nên sẽ không hiển thị rõ được trên giao diện
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      if (checkRandom) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
       // Nếu giải được bảng thì trả về true
-      if (await solve(board)) {
+      if (await solve(board, checkRandom)) {
         return true;
       }
       board[row][col] = 0;
@@ -300,4 +302,45 @@ function isValid(board, row, col, num) {
   }
   // Nếu không có vấn đề gì thì trả về true
   return true;
+}
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+function removeCells(board) {
+  const numToRemove = Math.floor(Math.random() * (81 - 40) + 40); // Số ô cần loại bỏ
+  const emptyCells = []; // Lưu trữ vị trí của các ô trống
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      emptyCells.push([i, j]);
+    }
+  }
+  shuffle(emptyCells); // Xáo trộn vị trí của các ô trống
+  for (let i = 0; i < numToRemove; i++) {
+    const [row, col] = emptyCells[i];
+    board[row][col] = 0;
+  }
+}
+
+async function randomSudoku() {
+  // Dừng đếm thời gian
+  clearInterval(interval);
+  // Đặt lại giá trị của bảng Sudoku
+  board = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  await solve(board, false);
+  removeCells(board);
+  setGame();
 }
