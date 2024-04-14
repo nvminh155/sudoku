@@ -10,12 +10,14 @@ var board = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
+var checkPause = false;
+var checkReset = false;
 // Hàm được gọi khi trang web được tải
 window.onload = function () {
-  setGame();
+  drawGame();
 };
 // Hàm tạo bảng Sudoku
-function setGame() {
+function drawGame() {
   // Xóa nội dung bảng Sudoku hiện có
   document.getElementById("board").innerHTML = "";
   // Lặp qua từng ô trong bảng Sudoku
@@ -61,20 +63,20 @@ function setGame() {
 let currentTime;
 let interval;
 // Hàm thiết lập thời gian chạy
-function setTime() {
-  currentTime = Date.now();
-  interval = setInterval(() => {
-    let time = Date.now() - currentTime;
-    let seconds = Math.floor(time / 1000);
-    let minutes = Math.floor(seconds / 60);
-    seconds = seconds % 60;
-    // Hiển thị thời gian đã trôi qua
-    document.getElementById("time").innerText =
-      (Math.floor(minutes / 10) === 0 ? "0".concat(minutes) : minutes) +
-      ":" +
-      (Math.floor(seconds / 10) === 0 ? "0".concat(seconds) : seconds);
-  }, 1000);
-}
+// function setTime() {
+//   currentTime = Date.now();
+//   interval = setInterval(() => {
+//     let time = Date.now() - currentTime;
+//     let seconds = Math.floor(time / 1000);
+//     let minutes = Math.floor(seconds / 60);
+//     seconds = seconds % 60;
+//     // Hiển thị thời gian đã trôi qua
+//     document.getElementById("time").innerText =
+//       (Math.floor(minutes / 10) === 0 ? "0".concat(minutes) : minutes) +
+//       ":" +
+//       (Math.floor(seconds / 10) === 0 ? "0".concat(seconds) : seconds);
+//   }, 1000);
+// }
 // Hàm kiểm tra bảng Sudoku
 function checkBoard(board) {
   // Lặp qua từng ô trong bảng
@@ -133,6 +135,12 @@ function updateCell(row, col, num) {
 }
 // Hàm triển khai giải thuật Backtrack
 async function BackTrack(grid) {
+  if (checkReset) {
+    return null;
+  }
+  while (checkPause) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       // Nếu ô trống
@@ -140,14 +148,20 @@ async function BackTrack(grid) {
         for (let num = 1; num <= 9; num++) {
           // Kiểm tra giá trị mới có phù hợp với ràng buộc không
           if (checkGrid(grid, row, col, num)) {
+            if (checkReset) {
+              return null;
+            }
             grid[row][col] = num;
             updateCell(row, col, num);
             // Đợi 50ms vì ngôn ngữ chạy khá nhanh nên sẽ không hiển thị rõ được trên giao diện
             await new Promise((resolve) => setTimeout(resolve, 50));
             // Nếu giải được bảng thì trả về true
             // Nếu không giải được thì trả về false và thử giá trị khác
-            if (await BackTrack(grid)) {
+            var result = await BackTrack(grid);
+            if (result) {
               return true;
+            } else if (result === null) {
+              return null;
             } else {
               grid[row][col] = 0;
             }
@@ -164,21 +178,30 @@ async function BackTrack(grid) {
 // Hàm giải Sudoku bằng phương pháp Backtrack
 async function SolveBackTrack() {
   // Bắt đầu đếm thời gian
-  setTime();
+  // setTime();
   // Kiểm tra bảng Sudoku và giải bằng Backtrack
+  checkReset = false;
+  checkPause = false;
   if (checkBoard(board) && (await BackTrack(board))) {
     // Nếu tìm thấy giải pháp, cập nhật lại giao diện bảng Sudoku
-    setGame();
+    drawGame();
     alert("Solution found");
   } else {
+    if (checkReset) {
+      checkReset = false;
+      return;
+    }
     // Nếu không tìm thấy giải pháp thì thông báo
     alert("No solution");
   }
   // Dừng đếm thời gian
-  clearInterval(interval);
+  // clearInterval(interval);
 }
 // Hàm reset bảng Sudoku
 function Reset() {
+  checkReset = true;
+  document.getElementById("pause").innerText = "Pause";
+  checkPause = false;
   // Đặt lại giá trị của bảng Sudoku
   board = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -192,9 +215,9 @@ function Reset() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
   // Tạo lại giao diện bảng Sudoku
-  setGame();
+  drawGame();
   // Dừng đếm thời gian
-  clearInterval(interval);
+  // clearInterval(interval);
   // Reset thời gian hiển thị
   document.getElementById("time").innerText = "00:00";
 }
@@ -202,21 +225,33 @@ function Reset() {
 // Hàm giải Sudoku bằng phương pháp Backtrack với hàm Heuristic
 async function SolveBackTrackHeuristic() {
   // Bắt đầu đếm thời gian
-  setTime();
+  // setTime();
   // Kiểm tra bảng Sudoku và giải bằng Backtrack Heuristic
+  checkReset = false;
+  checkPause = false;
   if (checkBoard(board) && (await solve(board, true))) {
     // Nếu tìm thấy giải pháp, cập nhật lại giao diện bảng Sudoku
-    setGame();
+    drawGame();
     alert("Solution found");
   } else {
+    if (checkReset) {
+      checkReset = false;
+      return;
+    }
     // Nếu không tìm thấy giải pháp thì thông báo
     alert("No solution");
   }
   // Dừng đếm thời gian
-  clearInterval(interval);
+  // clearInterval(interval);
 }
 // Hàm triển khai giải thuật Backtrack Heuristic
 async function solve(board, checkRandom) {
+  if (checkReset) {
+    return null;
+  }
+  while (checkPause) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
   // Tìm ô trống
   let emptySpot = findEmptySpot(board);
   // Nếu không còn ô trống thì trả về true
@@ -229,6 +264,9 @@ async function solve(board, checkRandom) {
   for (let num = 1; num <= 9; num++) {
     // Nếu giá trị thử này phù hợp với ràng buộc thì gán giá trị và thử giá trị tiếp theo
     if (isValid(board, row, col, num)) {
+      if (checkReset) {
+        return null;
+      }
       board[row][col] = num;
       updateCell(row, col, num);
       // Đợi 50ms vì ngôn ngữ chạy khá nhanh nên sẽ không hiển thị rõ được trên giao diện
@@ -236,10 +274,14 @@ async function solve(board, checkRandom) {
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
       // Nếu giải được bảng thì trả về true
-      if (await solve(board, checkRandom)) {
+      var result = await solve(board, checkRandom);
+      if (result) {
         return true;
+      } else if (result === null) {
+        return null;
+      } else {
+        board[row][col] = 0;
       }
-      board[row][col] = 0;
     }
   }
   // Nếu không có giá trị nào phù hợp thì trả về false
@@ -325,10 +367,18 @@ function removeCells(board) {
   }
 }
 
+function Pause() {
+  document.getElementById("pause").innerText = checkPause
+    ? "Pause"
+    : "Continue";
+  checkPause = !checkPause;
+}
+
 async function randomSudoku() {
   // Dừng đếm thời gian
-  clearInterval(interval);
+  // clearInterval(interval);
   // Đặt lại giá trị của bảng Sudoku
+  checkReset = false;
   board = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -342,5 +392,5 @@ async function randomSudoku() {
   ];
   await solve(board, false);
   removeCells(board);
-  setGame();
+  drawGame();
 }
